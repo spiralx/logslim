@@ -8,8 +8,15 @@
  */
 
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { process as processLog, type CompactMode, type ProcessResult } from "./index.js";
 import type { AttachSource } from "./attach.js";
+
+// Read at runtime rather than importing package.json: a JSON import would pull the
+// file into the compilation and push tsc's inferred rootDir up to the repo root.
+const { version } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { version: string };
 
 const HELP = `logslim — compact noisy command output before an AI agent reads it
 
@@ -111,7 +118,7 @@ function parseArgs(argv: string[]): CliArgs {
         break;
       case "-v":
       case "--version":
-        console.log("logslim 0.3.0");
+        console.log(`logslim ${version}`);
         process.exit(0);
         break;
       default:
